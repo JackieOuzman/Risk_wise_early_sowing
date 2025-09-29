@@ -4,8 +4,10 @@ library(readr)
 library(stringr)
 library(lubridate)
 library(readxl)
+#on virtual machine its N not D
+file_path1  <- "N:/work/Riskwise/early_sowing/"
 
-file_path1  <- "D:/work/Riskwise/early_sowing/"
+#file_path1  <- "D:/work/Riskwise/early_sowing/"
 site        <- "Lock"
 file_path2  <- "/APSIM_runs/Canola/"
 file_name   <- "Lock_fixed_Pengcheng_HF_rule_canola.Daily.csv"
@@ -44,6 +46,8 @@ str(check)
 Check_max_date <- max( check$sowing_date   )
 Check_max_date #should be 2024 -07-31
 
+something_wrong <- Early_sowing_Lock %>% filter(year == 2016)
+
 ### merge the data
 
 Early_sowing_Lock_met_decile <- left_join(Early_sowing_Lock, Decile_18046, by = "year")
@@ -51,19 +55,20 @@ str(Early_sowing_Lock_met_decile)
 
 
 ## side step add germination to one data files
+str(Early_sowing_Lock_met_decile)
 germination_date <- Early_sowing_Lock_met_decile %>% 
-  filter(Wheat.Phenology.CurrentStageName == "Germination") %>% 
+  filter(Canola.Phenology.CurrentStageName == "Germination") %>% 
   select(year, StartDate, Clock.Today ) %>% 
   rename(germination_date = Clock.Today)
 
 
 ### get the harvest rows only
 Early_sowing_Lock_met_decile_harvest <- Early_sowing_Lock_met_decile %>% 
-   filter(Wheat.Phenology.CurrentStageName == "HarvestRipe") %>% 
-   select(year, StartDate, decile, Yield, FrostHeatDamageFunctions.FrostHeatYield, Wheat.Phenology.CurrentStageName, Clock.Today, sowing_date ) %>% 
+   filter(Canola.Phenology.CurrentStageName == "HarvestRipe") %>% 
+   select(year, StartDate, decile, Yield, FrostHeatDamageFunctions.FrostHeatYield, Canola.Phenology.CurrentStageName, Clock.Today, sowing_date ) %>% 
   rename(harvest_date = Clock.Today,
          FrostHeatYield = FrostHeatDamageFunctions.FrostHeatYield) %>% 
-  select(-Wheat.Phenology.CurrentStageName)
+  select(-Canola.Phenology.CurrentStageName)
 
 ES_Lock_met_decile_harvest_germ <- left_join(
   Early_sowing_Lock_met_decile_harvest, germination_date)
@@ -102,7 +107,7 @@ Quantile_sow_date_decile
 
 write_csv(Quantile_sow_date_decile, 
           file =paste0(
-            "D:/work/Riskwise/early_sowing/Lock/For_Decile_cal/Wheat/",
+            "N:/work/Riskwise/early_sowing/Lock/For_Decile_cal/Canola/",
                        "/APSIM_yld_Decile_Fixed_sow_date_Lock18046_quantile", ".csv"))
 
 
@@ -132,7 +137,7 @@ ES_Lock_met_decile_harvest_germ <- ES_Lock_met_decile_harvest_germ %>%
            
 write_csv(ES_Lock_met_decile_harvest_germ, 
           file =paste0(
-            "D:/work/Riskwise/early_sowing/Lock/For_Decile_cal/Wheat/",
+            "N:/work/Riskwise/early_sowing/Lock/For_Decile_cal/Canola/",
             "/APSIM_yld_Decile_GermDate_Lock18046_No_summary", ".csv"))
 
 
@@ -140,7 +145,7 @@ write_csv(ES_Lock_met_decile_harvest_germ,
 ## Plots ###
 str(ES_Lock_met_decile_harvest_germ)
 
-path_saved_files <- file_path_input_data<-file.path("D:","work", "Riskwise", "early_sowing", "Lock", "Results" , "Wheat")
+path_saved_files <- file_path_input_data<-file.path("N:","work", "Riskwise", "early_sowing", "Lock", "Results" , "Canola")
 
 # non adjusted yld
 plot1_box <- ES_Lock_met_decile_harvest_germ %>% 
@@ -156,7 +161,7 @@ plot1_box <- ES_Lock_met_decile_harvest_germ %>%
   
   ylim(0,600)+
   labs(title = "Yield vs early sowing dates Lock 18046.\nMust sow rule. No frost rule used or penalty applied",
-       subtitle = "Wheat crop, unadjusted climate file",
+       subtitle = "Canola crop, unadjusted climate file",
        y = "Yield",
        x ="Sowing date expressed as DOY",
        caption = "Red dot = 2023."
@@ -165,7 +170,7 @@ plot1_box
 
 
 ggsave(plot = plot1_box,
-       filename = paste0(path_saved_files,"/Box_yield_vs_Sowing_dates_Lock_Wheat", ".png" ),
+       filename = paste0(path_saved_files,"/Box_yield_vs_Sowing_dates_Lock_Canola", ".png" ),
        width = 20, height = 12, units = "cm")
 
 ################################################################################
@@ -183,7 +188,7 @@ plot2_box <- ES_Lock_met_decile_harvest_germ %>%
   
   ylim(0,600)+
   labs(title = "Yield vs early sowing dates Lock 18046.\nMust sow rule. FrostHeatDamageFunctions penalty applied",
-       subtitle = "Wheat crop, unadjusted climate file",
+       subtitle = "Canola crop, unadjusted climate file",
        y = "Yield",
        x ="Sowing date expressed as DOY",
        caption = "Red dot = 2023."
@@ -192,7 +197,7 @@ plot2_box
 
 
 ggsave(plot = plot2_box,
-       filename = paste0(path_saved_files,"/Box_Frostyield_vs_Sowing_dates_Lock_Wheat", ".png" ),
+       filename = paste0(path_saved_files,"/Box_Frostyield_vs_Sowing_dates_Lock_Canola", ".png" ),
        width = 20, height = 12, units = "cm")
 
 
@@ -217,14 +222,14 @@ plot3_point <- ES_Lock_met_decile_harvest_germ_summary %>%
   
   
   labs(title = "Mean Yield vs early sowing dates Lock 18046.\nMust sow rule. \nYield and Frost Damage Functions Yield",
-       subtitle = "Wheat crop, unadjusted climate file",
+       subtitle = "Canola crop, unadjusted climate file",
        y = "Mean Yield for Sowing Date",
        x ="Sowing date expressed as DOY",
        caption = "Blue = Mean Frost Yield, Black = Mean Yield"
   )
 plot3_point
 ggsave(plot = plot3_point,
-       filename = paste0(path_saved_files,"/Box_Frostyield_and_yldvs_Sowing_dates_Lock_Wheat", ".png" ),
+       filename = paste0(path_saved_files,"/Box_Frostyield_and_yldvs_Sowing_dates_Lock_Canola", ".png" ),
        width = 20, height = 12, units = "cm")
 
 
@@ -243,9 +248,11 @@ ES_Lock_met_decile_harvest_germ_long <- ES_Lock_met_decile_harvest_germ %>%
 str(ES_Lock_met_decile_harvest_germ_long)
 
 
-plot1_hisrogram <-  ggplot(ES_Lock_met_decile_harvest_germ_long, aes(x=yield_Value, color=yield_Type, fill = yield_Type)) +
+plot1_hisrogram <-  ES_Lock_met_decile_harvest_germ_long %>% 
+  filter( yield_Value!=0) %>% 
+  ggplot( aes(x=yield_Value, color=yield_Type, fill = yield_Type)) +
   geom_histogram( alpha=0.2, position="identity")+
-  labs(title = "Lock Histogram Wheat Yield - Frost adjustment and No adjustment",
+  labs(title = "Lock Histogram Canola Yield - Frost adjustment and No adjustmentn\nZero yield filtered out",
        subtitle = "Climate file not adjusted",
        x = "Yield",
        y = "Frequency") +
@@ -254,20 +261,23 @@ plot1_hisrogram <-  ggplot(ES_Lock_met_decile_harvest_germ_long, aes(x=yield_Val
 plot1_hisrogram
 
 
-plot2_hisrogram <-  ggplot(ES_Lock_met_decile_harvest_germ_long, aes(x=yield_Value,color=yield_Type, fill = yield_Type)) +
+plot2_hisrogram <- ES_Lock_met_decile_harvest_germ_long %>% 
+  filter( yield_Value!=0) %>% 
+  ggplot( aes(x=yield_Value,color=yield_Type, fill = yield_Type)) +
   geom_histogram( )+
-  labs(title = "Lock Histogram Wheat Yield - Frost adjustment and No adjustment",
+  labs(title = "Lock Histogram Wheat Yield - Frost adjustment and No adjustment\nZero yield filtered out",
        subtitle = "Climate file not adjusted",
        x = "Yield",
        y = "Frequency") +
   theme_minimal()+
-  facet_wrap(. ~ yield_Type)+
-plot2_hisrogram
+  facet_wrap(. ~ yield_Type)
+
+  plot2_hisrogram
 
 
 ggsave(plot = plot1_hisrogram,
-       filename = paste0(path_saved_files,"/histogram_Frostyield_and_yldvs_Sowing_dates_Lock_Wheat", ".png" ),
+       filename = paste0(path_saved_files,"/histogram_Frostyield_and_yldvs_Sowing_dates_Lock_canola", ".png" ),
        width = 20, height = 12, units = "cm")
 ggsave(plot = plot2_hisrogram,
-       filename = paste0(path_saved_files,"/histogram_facet_Frostyield_and_yldvs_Sowing_dates_Lock_Wheat", ".png" ),
+       filename = paste0(path_saved_files,"/histogram_facet_Frostyield_and_yldvs_Sowing_dates_Lock_canola", ".png" ),
        width = 20, height = 12, units = "cm")
