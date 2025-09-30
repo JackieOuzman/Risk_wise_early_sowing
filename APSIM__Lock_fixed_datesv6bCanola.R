@@ -47,7 +47,7 @@ Check_max_date <- max( check$sowing_date   )
 Check_max_date #should be 2024 -07-31
 
 something_wrong <- Early_sowing_Lock %>% filter(year == 2016)
-
+rm(something_wrong, Check_max_date,check )
 ### merge the data
 
 Early_sowing_Lock_met_decile <- left_join(Early_sowing_Lock, Decile_18046, by = "year")
@@ -186,7 +186,7 @@ plot2_box <- ES_Lock_met_decile_harvest_germ %>%
         axis.text.x = element_text(angle = 90, vjust = 1, hjust=1),
         panel.border = element_rect(colour = "blue", fill=NA, linewidth=1))+
   
-  ylim(0,600)+
+  #ylim(0,600)+
   labs(title = "Yield vs early sowing dates Lock 18046.\nMust sow rule. FrostHeatDamageFunctions penalty applied",
        subtitle = "Canola crop, unadjusted climate file",
        y = "Yield",
@@ -249,10 +249,10 @@ str(ES_Lock_met_decile_harvest_germ_long)
 
 
 plot1_hisrogram <-  ES_Lock_met_decile_harvest_germ_long %>% 
-  filter( yield_Value!=0) %>% 
+  
   ggplot( aes(x=yield_Value, color=yield_Type, fill = yield_Type)) +
   geom_histogram( alpha=0.2, position="identity")+
-  labs(title = "Lock Histogram Canola Yield - Frost adjustment and No adjustmentn\nZero yield filtered out",
+  labs(title = "Lock Histogram Canola Yield - Frost adjustment and No adjustmentn",
        subtitle = "Climate file not adjusted",
        x = "Yield",
        y = "Frequency") +
@@ -262,10 +262,10 @@ plot1_hisrogram
 
 
 plot2_hisrogram <- ES_Lock_met_decile_harvest_germ_long %>% 
-  filter( yield_Value!=0) %>% 
+  
   ggplot( aes(x=yield_Value,color=yield_Type, fill = yield_Type)) +
   geom_histogram( )+
-  labs(title = "Lock Histogram Wheat Yield - Frost adjustment and No adjustment\nZero yield filtered out",
+  labs(title = "Lock Histogram Wheat Yield - Frost adjustment and No adjustment",
        subtitle = "Climate file not adjusted",
        x = "Yield",
        y = "Frequency") +
