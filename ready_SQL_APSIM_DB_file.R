@@ -1,8 +1,8 @@
 ### How to read in apsim database files.
 
 install.packages(c("DBI", "RSQLite"))
-library(DBI)
-library(RSQLite)
+#library(DBI)
+#library(RSQLite)
 
 
 # Replace "path/to/your/database.db" with the actual path to your file
