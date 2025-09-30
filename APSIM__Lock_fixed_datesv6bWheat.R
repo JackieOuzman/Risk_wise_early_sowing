@@ -4,19 +4,32 @@ library(readr)
 library(stringr)
 library(lubridate)
 library(readxl)
+library(DBI)
+library(RSQLite)
 
-file_path1  <- "D:/work/Riskwise/early_sowing/"
+#on virtual machine its N not D
+file_path1  <- "N:/work/Riskwise/early_sowing/"
+
+#file_path1  <- "D:/work/Riskwise/early_sowing/"
 site        <- "Lock"
-file_path2  <- "/APSIM_runs/"
-file_name   <- "Lock_fixed_Pengcheng_HF_rule.Daily.csv"
+file_path2  <- "/APSIM_runs/Wheat/"
+file_name   <- "Lock_fixed_Pengcheng_HF_rule.db"
+ "D:\work\RiskWise\early_sowing\Lock\APSIM_runs\Wheat\Lock_fixed_Pengcheng_HF_rule.db"
+con <- dbConnect(SQLite(),  "N:/work/RiskWise/early_sowing/Lock/APSIM_runs/Wheat/Lock_fixed_Pengcheng_HF_rule.db")
+dbListTables(con)
+data <- dbGetQuery(con, "SELECT * FROM Daily")
+dbDisconnect(con)
+rm(con)
 
-  
-Early_sowing_Lock <- read_csv(paste0(
-  file_path1,
-  site,
-  file_path2,
-  file_name))
-  
+
+names(data)
+
+Early_sowing_Lock <-data
+rm(data)
+
+
+
+   
 
 
 Decile_18046 <- read_csv(paste0(
@@ -39,10 +52,11 @@ Early_sowing_Lock <- Early_sowing_Lock %>%
   mutate(sowing_date = as.Date(sowing_date1,format = "%d-%B-%Y") ) %>% 
   select(-sowing_date1)
 
-check <- Early_sowing_Lock %>% select( Clock.Today,  SimulationName, StartDate,year, sowing_date )
+check <- Early_sowing_Lock %>% select( Clock.Today,  StartDate,year, sowing_date )
 str(check)
 Check_max_date <- max( check$sowing_date   )
 Check_max_date #should be 2024 -07-31
+rm( Check_max_date,check )
 
 ### merge the data
 
@@ -102,7 +116,7 @@ Quantile_sow_date_decile
 
 write_csv(Quantile_sow_date_decile, 
           file =paste0(
-            "D:/work/Riskwise/early_sowing/Lock/For_Decile_cal/Wheat/",
+            "N:/work/Riskwise/early_sowing/Lock/For_Decile_cal/Wheat/",
                        "/APSIM_yld_Decile_Fixed_sow_date_Lock18046_quantile", ".csv"))
 
 
@@ -132,7 +146,7 @@ ES_Lock_met_decile_harvest_germ <- ES_Lock_met_decile_harvest_germ %>%
            
 write_csv(ES_Lock_met_decile_harvest_germ, 
           file =paste0(
-            "D:/work/Riskwise/early_sowing/Lock/For_Decile_cal/Wheat/",
+            "N:/work/Riskwise/early_sowing/Lock/For_Decile_cal/Wheat/",
             "/APSIM_yld_Decile_GermDate_Lock18046_No_summary", ".csv"))
 
 
@@ -140,7 +154,7 @@ write_csv(ES_Lock_met_decile_harvest_germ,
 ## Plots ###
 str(ES_Lock_met_decile_harvest_germ)
 
-path_saved_files <- file_path_input_data<-file.path("D:","work", "Riskwise", "early_sowing", "Lock", "Results" , "Wheat")
+path_saved_files <- file_path_input_data<-file.path("N:","work", "Riskwise", "early_sowing", "Lock", "Results" , "Wheat")
 
 # non adjusted yld
 plot1_box <- ES_Lock_met_decile_harvest_germ %>% 
@@ -154,7 +168,7 @@ plot1_box <- ES_Lock_met_decile_harvest_germ %>%
         axis.text.x = element_text(angle = 90, vjust = 1, hjust=1),
         panel.border = element_rect(colour = "blue", fill=NA, linewidth=1))+
   
-  ylim(0,600)+
+  #ylim(0,600)+
   labs(title = "Yield vs early sowing dates Lock 18046.\nMust sow rule. No frost rule used or penalty applied",
        subtitle = "Wheat crop, unadjusted climate file",
        y = "Yield",
@@ -181,7 +195,7 @@ plot2_box <- ES_Lock_met_decile_harvest_germ %>%
         axis.text.x = element_text(angle = 90, vjust = 1, hjust=1),
         panel.border = element_rect(colour = "blue", fill=NA, linewidth=1))+
   
-  ylim(0,600)+
+  #ylim(0,600)+
   labs(title = "Yield vs early sowing dates Lock 18046.\nMust sow rule. FrostHeatDamageFunctions penalty applied",
        subtitle = "Wheat crop, unadjusted climate file",
        y = "Yield",
@@ -261,7 +275,7 @@ plot2_hisrogram <-  ggplot(ES_Lock_met_decile_harvest_germ_long, aes(x=yield_Val
        x = "Yield",
        y = "Frequency") +
   theme_minimal()+
-  facet_wrap(. ~ yield_Type)+
+  facet_wrap(. ~ yield_Type)
 plot2_hisrogram
 
 
