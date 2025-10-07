@@ -14,7 +14,7 @@ file_path1  <- "N:/work/Riskwise/early_sowing/"
 site        <- "Lock"
 file_path2  <- "/APSIM_runs/Wheat/"
 file_name   <- "Lock_fixed_Pengcheng_HF_rule.db"
- "D:\work\RiskWise\early_sowing\Lock\APSIM_runs\Wheat\Lock_fixed_Pengcheng_HF_rule.db"
+ #"D:\work\RiskWise\early_sowing\Lock\APSIM_runs\Wheat\Lock_fixed_Pengcheng_HF_rule.db"
 con <- dbConnect(SQLite(),  "N:/work/RiskWise/early_sowing/Lock/APSIM_runs/Wheat/Lock_fixed_Pengcheng_HF_rule.db")
 dbListTables(con)
 data <- dbGetQuery(con, "SELECT * FROM Daily")
