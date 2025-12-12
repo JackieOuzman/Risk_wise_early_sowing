@@ -90,14 +90,20 @@ Wild_eye_Tempertaure <- rbind(site1_Tempertaure, site2_Tempertaure,site3_Tempert
 
 ### Plot
 Wild_eye_Tempertaure
+distinct(Wild_eye_Tempertaure, site)
 
-Wild_eye_Tempertaure %>% 
+Wild_eye_Tempertaure %>%
+  mutate(site_ord = factor(site, levels = c("Glover_G_GMH_WS", "PopeB_WBooWS", "PolkinghorneA_LockWstWS","PolkinghorneA_KingWS" ))) %>%  # Replace with your actual site names
 ggplot(aes(x = date , y = mint   )) +
-  geom_point(colour = "blue")+
-  geom_point(aes(x = date , y = maxt ), colour = "green")+
-  facet_wrap(.~site)+
+  geom_line(colour = "blue")+
+  #geom_point(colour = "blue")+
+  #geom_point(aes(x = date , y = maxt ), colour = "green")+
+  geom_line(aes(x = date , y = maxt ), colour = "darkgreen")+
+  facet_wrap(.~site_ord, scales = "free") +
+  scale_x_date(date_labels = "%Y-%m") +  # Year-Month format
   theme_bw()+
-  labs(x = "Date", y = "Tempertaure (C)")
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    labs(x = "Date", y = "Tempertaure (C)")
   
 
 
@@ -105,13 +111,27 @@ ggplot(aes(x = date , y = mint   )) +
 
 library(leaflet)
 
+### min and max time
+
+Wild_eye_Tempertaure_date_range <- Wild_eye_Tempertaure %>% 
+  group_by(site) %>% 
+  summarise(min_date = min(date),
+            max_date = max(date))
+
+
+Wild_eye_Tempertaure_date_range
+
 
 Wild_eye_Tempertaure_coords <- Wild_eye_Tempertaure %>% 
   distinct(site, .keep_all = TRUE ) %>% 
   select(site , latitude,   longitude)
-
+  
 Wild_eye_Tempertaure_coords$latitude <- as.double(Wild_eye_Tempertaure_coords$latitude)
 Wild_eye_Tempertaure_coords$longitude <- as.double(Wild_eye_Tempertaure_coords$longitude)
+
+Wild_eye_Tempertaure_coords <- left_join(Wild_eye_Tempertaure_coords, Wild_eye_Tempertaure_date_range)
+
+
 
 # Create a basic leaflet map
 leaflet(Wild_eye_Tempertaure_coords) %>%
@@ -119,9 +139,13 @@ leaflet(Wild_eye_Tempertaure_coords) %>%
   addMarkers(
     lng = ~longitude,
     lat = ~latitude,
-    popup = ~paste("<b>", site)
-    #popup = ~paste("<b>", site, "</b><br/>Value:", value)
+    label = ~ site,
+    labelOptions = labelOptions(noHide = TRUE, textOnly = TRUE, direction = "right")
+    #popup = ~paste("<b>", site)
   )
 
+
+
+write_csv(Wild_eye_Tempertaure_coords , "D:/work/RiskWise/met_files/wild_eye_farm_data/Wild_eye_Tempertaure_coord_date_range.csv")
 
 ### Add to this with the names of the sites as label not pop up and avaialble data range
